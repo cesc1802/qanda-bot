@@ -1,5 +1,11 @@
-require('dotenv').config();
-const { bot } = require('./bot');
+import "dotenv/config"
+import { registerHandlers } from "./handlers/index.js";
+
+import { Telegraf } from 'telegraf';
+
+const bot = new Telegraf(process.env.BOT_TOKEN);
+
+registerHandlers(bot)
 
 // Start bot
 bot.launch()
