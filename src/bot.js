@@ -1,13 +1,6 @@
-const { Telegraf } = require('telegraf');
-const { registerCommands } = require('./handlers/commands');
-const { setupMiddleware } = require('./middleware/logger');
+import { Telegraf } from 'telegraf';
+import { registerHandlers } from './handlers';
 
-const bot = new Telegraf(process.env.BOT_TOKEN);
+export const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// Setup middleware
-setupMiddleware(bot);
-
-// Register command handlers
-registerCommands(bot);
-
-module.exports = { bot };
+registerHandlers(bot)
