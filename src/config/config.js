@@ -1,3 +1,11 @@
+import * as dotenv from "dotenv"
+import { resolve } from 'path';
+import appRootPath from 'app-root-path';
+
+// Construct the absolute path to the `.env.dev` file
+const envPath = resolve(appRootPath.path, '.env.dev');
+dotenv.config({ path: envPath });
+
 const credentials = JSON.parse(
   Buffer.from(process.env.GOOGLE_SHEET_CREDS_BASE64, "base64").toString("utf-8")
 );
