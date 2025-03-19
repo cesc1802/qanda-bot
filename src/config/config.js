@@ -6,4 +6,5 @@ export const config = {
   EXAM_GROUP_ID: process.env.EXAM_GROUP_ID,
   DISCUSSION_TOPIC_ID: process.env.DISCUSSION_TOPIC_ID,
   GOOGLE_SHEET_CREDS: credentials,
+  SHEET_ID: process.env.SHEET_ID,
 };
