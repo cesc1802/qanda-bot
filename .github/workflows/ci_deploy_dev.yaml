@@ -1,0 +1,81 @@
+name: Deploy Application
+on:
+  workflow_call:
+    inputs:
+      username:
+        required: false
+        type: string
+    secrets:
+      GH_TOKEN:
+        description: 'github token use to authentication'
+        required: true
+      TELEGRAM_CHAT_ID:
+        description: 'telegram chat id'
+        required: true
+      TELEGRAM_BOT_TOKEN:
+        description: 'telegram chat token'
+        required: true
+      SSH_HOST_DEV:
+        required: true
+      SSH_USERNAME_DEV:
+        required: true
+      SSH_PRIVATE_KEY_DEV:
+        required: true
+      SSH_PORT_DEV:
+        required: true
+
+jobs:
+  deploy-application:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checking out the code
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GH_TOKEN}}
+
+      - name: Extract Version
+        id: version_step
+        run: |
+          echo "version=${GITHUB_REF#$"refs/tags/"}" >> $GITHUB_OUTPUT
+          echo "version_tag=ghcr.io/UpNext-SWAT-0/$GITHUB_REPOSITORY:${GITHUB_REF#$"refs/tags/"}" >> $GITHUB_OUTPUT
+
+      - name: Prepare Registry Names
+        id: read-docker-image-identifiers
+        run: |
+          echo VERSION_TAG=$(echo ${{ steps.version_step.outputs.version_tag }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
+
+      - name: Deploy Application to remote host
+        id: deploy_app
+        uses: appleboy/ssh-action@v0.1.10
+        env:
+          TAG: ${{ steps.version_step.outputs.version }}
+        with:
+          host: ${{ secrets.SSH_HOST_DEV }}
+          username: ${{ secrets.SSH_USERNAME_DEV }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_DEV }}
+          port: ${{ secrets.SSH_PORT_DEV }}
+          envs: TAG
+          script: |
+            cd /home/ubuntu/api
+            git fetch
+            git checkout $TAG
+            docker-compose -f deployment/docker/docker-compose.dev.yml build --no-cache gym
+            docker stop gym-api
+            docker compose -f deployment/docker/docker-compose.dev.yml up --no-deps -d gym 
+
+      - name: Send telegram message on push
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          disable_notification: true
+          message: |
+            ${{ github.actor }} Built Docker:
+            Status: ${{ job.status }}
+            Docker Image Version: ${{ steps.version_step.outputs.version }}
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
