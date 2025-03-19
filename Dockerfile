@@ -4,6 +4,7 @@ FROM node:23.10.0-alpine AS builder
 WORKDIR /app
 
 # Copy package files
+COPY package*.json .
 
 # Install dependencies
 RUN npm ci
