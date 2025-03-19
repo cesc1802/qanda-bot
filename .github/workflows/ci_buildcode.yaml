@@ -24,7 +24,7 @@ jobs:
       - name: Checking out the code
         uses: actions/checkout@v3
 
-      - name: Setup Go Environment
+      - name: Setup Node Environment
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
