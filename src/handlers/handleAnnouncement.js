@@ -1,17 +1,9 @@
-import { google } from "googleapis";
 import { message } from "telegraf/filters";
 import { config } from "../config/index.js";
 import logger from "../helper/logger.js";
+import { formatDateTime } from "../helper/time.js";
 
-const googleCreds = config.GOOGLE_SHEET_CREDS;
-// Google Sheets setup
-const auth = new google.auth.GoogleAuth({
-  credentials: googleCreds,
-  scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-});
-const sheets = google.sheets({ version: "v4", auth });
-
-export async function handleAnnouncements(bot) {
+export async function handleAnnouncements(bot, sheets) {
   bot.on(message("text"), async (ctx) => {
     logger.debug("Received message", {
       chat: ctx.chat,
@@ -26,27 +18,42 @@ export async function handleAnnouncements(bot) {
 
     if (!isBotMentioned) return;
 
-    await appendToSheet({
-      timestamp: new Date(ctx.message.date * 1000).toISOString(),
-      username: ctx.from.username || `user_${ctx.from.id}`,
-      messageContent: messageText.trim(),
-    });
+    const { announcementCreatedDate, announcementCreatedTime } = formatDateTime(
+      new Date(ctx.message.date * 1000)
+    );
+    const username = ctx.from.username || `user_${ctx.from.id}`;
+    const firstName = ctx.message.from.first_name;
+    const lastName = ctx.message.from.last_name || "";
+
+    await appendToSheet(
+      {
+        announcementCreatedDate: announcementCreatedDate,
+        announcementCreatedTime: announcementCreatedTime,
+        username: username,
+        nameOfUser: `${firstName} ${lastName}`,
+        messageContent: messageText.trim(),
+      },
+      sheets
+    );
   });
 }
 
-async function appendToSheet(data) {
+async function appendToSheet(data, sheets) {
   const values = [
     [
-      data.timestamp,
+      data.announcementCreatedDate,
+      data.announcementCreatedTime,
       data.username,
+      data.nameOfUser,
       data.messageContent,
     ],
   ];
-  logger.debug("Uploading data to sheet", data);
+  logger.debug("Upload data to sheet", data);
 
+  const dataStartFrom = "A2";
   await sheets.spreadsheets.values.append({
-    spreadsheetId: config.SHEET_ID,
-    range: "Sheet1!A2",
+    spreadsheetId: config.SPREADSHEET_ID,
+    range: `${config.SHEET_NAME_ANNOUNCEMENT}!${dataStartFrom}`,
     valueInputOption: "USER_ENTERED",
     resource: { values },
   });

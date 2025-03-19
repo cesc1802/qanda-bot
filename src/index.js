@@ -1,4 +1,3 @@
-import "dotenv/config";
 import { registerHandlers } from "./handlers/index.js";
 
 import { Telegraf } from "telegraf";
