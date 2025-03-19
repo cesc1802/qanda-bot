@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import { message } from "telegraf/filters";
 import { config } from "../config/index.js";
+import logger from "../helper/logger.js";
 
 const googleCreds = config.GOOGLE_SHEET_CREDS;
 // Google Sheets setup
@@ -12,7 +13,7 @@ const sheets = google.sheets({ version: "v4", auth });
 
 export async function handleAnnouncements(bot) {
   bot.on(message("text"), async (ctx) => {
-    console.log("[DEBUG] Info", {
+    logger.debug("Received message", {
       chat: ctx.chat,
       message: ctx.message,
       ...ctx,
@@ -41,7 +42,7 @@ async function appendToSheet(data) {
       data.messageContent,
     ],
   ];
-  console.log("@@upload data",data)
+  logger.debug("Uploading data to sheet", data);
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: config.SHEET_ID,
