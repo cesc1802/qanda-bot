@@ -13,7 +13,7 @@ docker save -o ${APP_NAME}.tar ${APP_NAME}
 echo "Deploying to ${DEPLOY_HOST_IP}..."
 
 echo "Cleaning before deploy"
-ssh -i ~/.ssh/${PUBLIC_KEY_NAME} -o StrictteatHostKeyChecking=no ${DEPLOY_CONNECT} 'bash -s' < ./clean-before-deploy.sh
+ssh -i ~/.ssh/${PUBLIC_KEY_NAME} -o StrictHostKeyChecking=no ${DEPLOY_CONNECT} 'bash -s' < ./clean-before-deploy.sh
 
 echo "Deploy..."
 scp -i ~/.ssh/${PUBLIC_KEY_NAME} -o StrictHostKeyChecking=no ./${APP_NAME}.tar ${DEPLOY_CONNECT}:~
