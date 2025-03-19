@@ -34,7 +34,7 @@ jobs:
         id: version_step
         run: |
           echo "version=${GITHUB_REF#$"refs/tags/"}" >> $GITHUB_OUTPUT
-          echo "version_tag=ghcr.io/cesc1802/$GITHUB_REPOSITORY:${GITHUB_REF#$"refs/tags/"}" >> $GITHUB_OUTPUT
+          echo "version_tag=ghcr.io/$GITHUB_REPOSITORY:${GITHUB_REF#$"refs/tags/"}" >> $GITHUB_OUTPUT
 
       - name: Prepare Registry Names
         id: read-docker-image-identifiers
