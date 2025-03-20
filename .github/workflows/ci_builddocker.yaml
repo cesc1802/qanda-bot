@@ -47,7 +47,7 @@ jobs:
         with:
           push: true
           context: .
-          file: Dockerfile
+          file: ./deployment/docker/Dockerfile
           tags: ${{ env.VERSION_TAG }}
           build-args: ${{ steps.version_step.outputs.version }}
 
