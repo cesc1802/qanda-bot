@@ -65,7 +65,7 @@ jobs:
 
       - name: Deploy using Docker Context
         run: |
-          docker context create remote-server --docker=ssh://${{secrets.SSH_USERNAME_DEV}}@${{secrets.SSH_HOST_DEV}}
+          docker context create remote-server --docker "host=ssh://${{secrets.SSH_USERNAME_DEV}}@${{secrets.SSH_HOST_DEV}}"
           docker --context remote-server pull ${{ env.VERSION_TAG }}
 
       - name: Send telegram message on push
