@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  qanda-bot:
+    build:
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile
+    container_name: "qanda-bot"
+    restart: always
+    env_file:
+      - ../../.env
