@@ -65,7 +65,7 @@ jobs:
 
       - name: Deploy Application to remote host
         id: deploy_app
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1
         env:
           TAG: ${{ steps.version_step.outputs.version }}
         with:
@@ -75,12 +75,13 @@ jobs:
           port: ${{ secrets.SSH_PORT_DEV }}
           envs: TAG
           script: |
-            cd qanda-bot
-            git fetch
-            git checkout $TAG
-            docker-compose -f deployment/docker/docker-compose.dev.yml build --no-cache qanda-bot
-            docker stop qanda-bot
-            docker compose -f deployment/docker/docker-compose.dev.yml up --no-deps -d qanda-bot 
+            ls -al
+            # cd qanda-bot
+            # git fetch
+            # git checkout $TAG
+            # docker-compose -f deployment/docker/docker-compose.dev.yml build --no-cache qanda-bot
+            # docker stop qanda-bot
+            # docker compose -f deployment/docker/docker-compose.dev.yml up --no-deps -d qanda-bot 
 
       - name: Send telegram message on push
         uses: appleboy/telegram-action@master
