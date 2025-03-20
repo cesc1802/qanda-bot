@@ -76,6 +76,17 @@ jobs:
           envs: TAG
           script: |
             ls -al
+            cd qanda-bot
+            cat > .env << EOF
+              BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+              EXAM_GROUP_ID=${{ secrets.EXAM_GROUP_ID }}
+              ANNOUNCEMENTS_TOPIC_ID=${{ secrets.ANNOUNCEMENTS_TOPIC_ID }}
+              STUDENT_PRESENTATIONS_TOPIC_ID=${{ secrets.STUDENT_PRESENTATIONS_TOPIC_ID }}
+              QUESTION_AND_ANSWER_TOPIC_ID=${{ secrets.QUESTION_AND_ANSWER_TOPIC_ID }}
+              SHEET_ID=${{ secrets.SHEET_ID }}
+              GOOGLE_SHEET_CREDS_BASE64=${{ secrets.GOOGLE_SHEET_CREDS_BASE64 }}
+              EOF
+            docker pull ${{ env.VERSION_TAG }}
             # cd qanda-bot
             # git fetch
             # git checkout $TAG
