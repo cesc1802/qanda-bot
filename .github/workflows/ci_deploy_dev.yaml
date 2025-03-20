@@ -75,6 +75,7 @@ jobs:
           port: ${{ secrets.SSH_PORT_DEV }}
           envs: TAG
           script: |
+            cd qanda-bot
             git fetch
             git checkout $TAG
             docker-compose -f deployment/docker/docker-compose.dev.yml build --no-cache qanda-bot
