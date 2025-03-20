@@ -63,36 +63,10 @@ jobs:
         run: |
           echo VERSION_TAG=$(echo ${{ steps.version_step.outputs.version_tag }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
 
-      - name: Deploy Application to remote host
-        id: deploy_app
-        uses: appleboy/ssh-action@v1
-        env:
-          TAG: ${{ steps.version_step.outputs.version }}
-        with:
-          host: ${{ secrets.SSH_HOST_DEV }}
-          username: ${{ secrets.SSH_USERNAME_DEV }}
-          key: ${{ secrets.SSH_PRIVATE_KEY_DEV }}
-          port: ${{ secrets.SSH_PORT_DEV }}
-          envs: TAG
-          script: |
-            ls -al
-            cd qanda-bot
-            cat > .env << EOF
-              BOT_TOKEN=${{ secrets.BOT_TOKEN }}
-              EXAM_GROUP_ID=${{ secrets.EXAM_GROUP_ID }}
-              ANNOUNCEMENTS_TOPIC_ID=${{ secrets.ANNOUNCEMENTS_TOPIC_ID }}
-              STUDENT_PRESENTATIONS_TOPIC_ID=${{ secrets.STUDENT_PRESENTATIONS_TOPIC_ID }}
-              QUESTION_AND_ANSWER_TOPIC_ID=${{ secrets.QUESTION_AND_ANSWER_TOPIC_ID }}
-              SHEET_ID=${{ secrets.SHEET_ID }}
-              GOOGLE_SHEET_CREDS_BASE64=${{ secrets.GOOGLE_SHEET_CREDS_BASE64 }}
-              EOF
-            docker pull ${{ env.VERSION_TAG }}
-            # cd qanda-bot
-            # git fetch
-            # git checkout $TAG
-            # docker-compose -f deployment/docker/docker-compose.dev.yml build --no-cache qanda-bot
-            # docker stop qanda-bot
-            # docker compose -f deployment/docker/docker-compose.dev.yml up --no-deps -d qanda-bot 
+      - name: Deploy using Docker Context
+        run: |
+          docker context create remote-server --docker=ssh://${{secrets.SSH_USERNAME_DEV}}@${{secrets.SSH_HOST_DEV}}
+          docker --context remote-server pull ${{ env.VERSION_TAG }}
 
       - name: Send telegram message on push
         uses: appleboy/telegram-action@master
