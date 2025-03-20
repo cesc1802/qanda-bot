@@ -63,6 +63,9 @@ jobs:
         run: |
           echo VERSION_TAG=$(echo ${{ steps.version_step.outputs.version_tag }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
 
+      - name: Add Remote Host to Known Hosts
+        run: mkdir -p ~/.ssh && echo "${{ secrets.SSH_PRIVATE_KEY_DEV }}" >> ~/.ssh/known_hosts
+
       - name: Deploy using Docker Context
         run: |
           docker context create remote-server --docker "host=ssh://${{secrets.SSH_USERNAME_DEV}}@${{secrets.SSH_HOST_DEV}}"
